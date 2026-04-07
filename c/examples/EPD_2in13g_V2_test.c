@@ -39,9 +39,10 @@ int EPD_2in13g_V2_test(void)
     }
 
     printf("e-Paper Init and Clear...\r\n");
+    // TODO: We get stuck here if the program has been ran before. Maybe because the screen is in sleep mode
     EPD_2IN13G_V2_Init();
 
-	struct timespec start={0,0}, finish={0,0}; 
+    struct timespec start={0,0}, finish={0,0}; 
     clock_gettime(CLOCK_REALTIME, &start);
     EPD_2IN13G_V2_Clear(EPD_2IN13G_V2_WHITE); // White
     clock_gettime(CLOCK_REALTIME, &finish);
