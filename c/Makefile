@@ -12,10 +12,6 @@ ifeq ($(EPD), reserved)
 	OBJ_C_EPD = ${DIR_EPD}/reserved.c
 	OBJ_C_Examples = ${DIR_Examples}/reserved_test.c
 	OBJ_C = $(wildcard ${OBJ_C_EPD} ${DIR_GUI}/*.c ${OBJ_C_Examples} ${DIR_Examples}/main.c ${DIR_Examples}/ImageData2.c ${DIR_Examples}/ImageData.c ${DIR_FONTS}/*.c )
-else ifeq ($(EPD), epd2in13g)
-	OBJ_C_EPD = ${DIR_EPD}/EPD_2in13g.c
-	OBJ_C_Examples = ${DIR_Examples}/EPD_2in13g_test.c
-	OBJ_C = $(wildcard ${OBJ_C_EPD} ${DIR_GUI}/*.c ${OBJ_C_Examples} ${DIR_Examples}/main.c ${DIR_Examples}/ImageData2.c ${DIR_Examples}/ImageData.c ${DIR_FONTS}/*.c )
 else 
 	OBJ_C_EPD = ${DIR_EPD}/EPD_2in13g_V2.c
 	OBJ_C_Examples = ${DIR_Examples}/EPD_2in13g_V2_test.c
