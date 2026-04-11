@@ -39,20 +39,13 @@ static void EPD_2IN13G_V2_Reset(void)
 {
     DEV_Digital_Write(EPD_PWR_PIN, 1);
     DEV_Digital_Write(EPD_RST_PIN, 1);
-    DEV_Delay_ms(1000);
+    DEV_Delay_ms(10);
     DEV_Digital_Write(EPD_PWR_PIN, 0);
     DEV_Digital_Write(EPD_RST_PIN, 0);
-    DEV_Delay_ms(1000);
+    DEV_Delay_ms(10);  // Short pulse - critical for HAT power-off switch circuit
     DEV_Digital_Write(EPD_PWR_PIN, 1);
     DEV_Digital_Write(EPD_RST_PIN, 1);
-    DEV_Delay_ms(1000);
-
-    // DEV_Digital_Write(EPD_RST_PIN, 1);
-    // DEV_Delay_ms(1000);
-    // DEV_Digital_Write(EPD_RST_PIN, 0);
-    // DEV_Delay_ms(1000);
-    // DEV_Digital_Write(EPD_RST_PIN, 1);
-    // DEV_Delay_ms(1000);
+    DEV_Delay_ms(10);
 }
 
 /******************************************************************************
@@ -88,9 +81,40 @@ parameter:
 void EPD_2IN13G_V2_ReadBusy(void)
 {
     Debug("e-Paper busy\r\n");
+    printf("Debug: Waiting for BUSY pin (GPIO24) to go HIGH...\r\n");
     DEV_Delay_ms(100);
-    while(DEV_Digital_Read(EPD_BUSY_PIN) != 1) {      //HIGH: idle, LOW: busy
+    
+    int timeout = 0;
+    const int MAX_TIMEOUT = 300;  // 30 seconds max (300 * 100ms)
+    UBYTE busy_val;
+    
+    while(1) {
+        busy_val = DEV_Digital_Read(EPD_BUSY_PIN);
+        if (busy_val == 1) {
+            break;  // Display is idle
+        }
+        
         DEV_Delay_ms(100);
+        timeout++;
+        
+        // Print status every 10 iterations (1 second)
+        if (timeout % 10 == 0) {
+            printf("Debug: BUSY still LOW after %d seconds...\r\n", timeout / 10);
+        }
+        
+        if (timeout > MAX_TIMEOUT) {
+            printf("\r\nERROR: BUSY timeout! Display stuck in busy state after 30 seconds.\r\n");
+            printf("BUSY pin value = %d (expected: 1 for idle)\r\n", busy_val);
+            printf("Possible causes:\r\n");
+            printf("  1. Display not powered on - check HAT connection\r\n");
+            printf("  2. SPI communication failure - check wiring\r\n");
+            printf("  3. Display hardware fault\r\n");
+            break;  // Exit to prevent infinite hang
+        }
+    }
+    
+    if (timeout <= MAX_TIMEOUT) {
+        printf("Debug: BUSY pin is now HIGH (idle) after %d ms\r\n", timeout * 100);
     }
     Debug("e-Paper busy release\r\n");
 }
